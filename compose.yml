@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16
+    container_name: mfp-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecret
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: ./server
+    container_name: mfp-server
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: supersecret
+      DB_NAME: postgres
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  client:
+    build:
+      context: ./client
+    container_name: mfp-client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+
+volumes:
+  db_data:
